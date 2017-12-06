@@ -6,7 +6,7 @@ from django.http import HttpResponse
 
 CURRENT_FISCAL = 2017
 all = Salary.objects.all().order_by('-gross_pay')
-agencies = Agency.objects.all()
+agencies = Agency.objects.all().order_by('agency_name')
 allcount = all.count()
     
 def Main(request):
@@ -18,14 +18,16 @@ def Main(request):
     return render_to_response('salaries2017/main.html', dictionaries)
     
 def AgencyPage(request, company):
-    people = all.filter(company=company)
+    agency = Agency.objects.get(agency_code=company)
+    people = all.filter(agency_code=company)
     count = people.count()
     top100 = people[:100]
-    dictionaries = { 'people':people, 'count': count, 'top100':top100, 'agencies':agencies, 'allcount':allcount,'CURRENT_FISCAL':CURRENT_FISCAL,}
+    dictionaries = { 'agency': agency, 'people':people, 'count': count, 'top100':top100, 'agencies':agencies, 'allcount':allcount,'CURRENT_FISCAL':CURRENT_FISCAL,}
     return render_to_response('salaries2017/agency.html', dictionaries)
     
-def PersonPage(request, agencyid, uniqueslug):
-    dictionaries = { }
+def PersonPage(request, id, name_slug):
+    person = Salary.objects.get(id=id, name_slug=name_slug)
+    dictionaries = { 'person': person, }
     return render_to_response('salaries2017/person.html', dictionaries)
     
 def Search(request):
